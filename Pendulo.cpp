@@ -9,7 +9,7 @@ const int N=3;
 const double g=9.8;
 const double l=0.12;
 const double R=0.015;
-const double k=10e10; 
+const double k=10e10;
 
 const double Zi=0.1786178958448091e0;
 const double Lambda=0.2123418310626054*(-1);
@@ -32,11 +32,11 @@ private:
   vector3D r, v, F, T;
   double xe;
   double m, R;
-  
+
 public:
 
   //--- internal functions ----------------------------
-  
+
   void Start(vector3D r0, vector3D v0, double m, double R, double xi);
   void SetZeroF(void){F.cargue(0,0,0);}
   void SetForce(vector3D Ft){F+=Ft;}
@@ -86,7 +86,7 @@ void Body::Draw(void){
 class Force{
 public:
   //--- internal functions ----------------------------
-  void SetGravitationAndTensionForce(Body & BodyA); 
+  void SetGravitationAndTensionForce(Body & BodyA);
   void SetForceBTP(Body & BodyA, Body & BodyB); //BTP : Between two Bodies
   void SetTotalForce(Body *Bodies);
   void SetTotalTorque(Body *Bodies);
@@ -96,7 +96,7 @@ public:
 
 void Force:: SetGravitationAndTensionForce(Body & BodyA){
   vector3D G;
-  
+
   //----- Calculo tensión de la cuerda ----------------
   double xp = BodyA.Getx() - BodyA.xe;
   vector3D R; R.cargue(xp,BodyA.Gety(),BodyA.Getz());
@@ -104,7 +104,7 @@ void Force:: SetGravitationAndTensionForce(Body & BodyA){
   //para calcular la tensión, se tiene en cuenta que el cuerpo esta bajo la acción otra fuerza a parte de la gravedad
   //esa fuerza es la fuerza de Hertz, por lo que es necesario calcularla primero antes de hallar la tensión
   double T = (BodyA.m)*pow(aux,2.0)*pow(l,-3.0) - (BodyA.m)*g*(BodyA.Gety())/l + (BodyA.F*R)/norma(R);
-  
+
   //----- Calculo Fuerza total sobre el pendulo dada por la tension y por la gravedad-------
   G.cargue(-T*(xp)/l,-(T*(BodyA.Gety())/l+(BodyA.m)*g),0.0);
   BodyA.SetForce(G);
@@ -114,7 +114,7 @@ void Force::SetForceBTP(Body & BodyA, Body & BodyB){
   vector3D rab = BodyA.r - BodyB.r;
   double s = 2*R - norma(rab);
   vector3D G;
-  
+
   //------ calculo fuerza de Hertz cuando s > 0 ------------
   if(s > 0){
     G = rab*(k*pow(s,1.5)/norma(rab));
@@ -122,10 +122,10 @@ void Force::SetForceBTP(Body & BodyA, Body & BodyB){
   }
 }
 
-void Force::SetTotalForce(Body *Bodies){  
+void Force::SetTotalForce(Body *Bodies){
   int i,j;
   for(i = 0; i < N; i++){
-    Bodies[i].SetZeroF();    
+    Bodies[i].SetZeroF();
   }
   for(i = 0; i < N; i++){
     //calcula primero la fuerza de Hertz entre las esferas, para despues cacular la tension
@@ -148,7 +148,7 @@ void Force::SetTotalTorque(Body *Bodies){
     G = R^Bodies[i].F;
     Bodies[i].SetTorque(G);
   }
-  
+
 }
 
 //------------- Global Functions -----------------------------------
@@ -162,13 +162,13 @@ void StartAnimation(void){
   std::cout<<"set size ratio -1"<<std::endl;
   std::cout<<"set parametric"<<std::endl;
   std::cout<<"set trange [0:7]"<<std::endl;
-  std::cout<<"set isosamples 12"<<std::endl;  
+  std::cout<<"set isosamples 12"<<std::endl;
 }
 
 void StartFrame(void){
     std::cout<<"plot 0,0 ";
     std::cout<<" ,-0.15 +"<<0.3/7<<"*t,0";
-    
+
 }
 void EndFrame(void){
     std::cout<<std::endl;
@@ -186,7 +186,7 @@ int main(){
   int i;
 
   dt = 0.000001; m = 0.1; T = 2*M_PI*sqrt(l/g);
-  
+
   StartAnimation();
 
   //---- Definiendo condiciones iniciales de los pendulos ---------
@@ -195,11 +195,11 @@ int main(){
   x20 = 2*R; y20 = -l;
   x30 = -2*R - l*sin(theta0); y30 = -l*cos(theta0);
   vx0 = 0.0; vy0 = 0.0;
-  
+
   vector3D X10, V0;
   vector3D X20;
   vector3D X30;
-  
+
   X10.cargue(x10,y10,0); V0.cargue(vx0,vy0,0);
   X20.cargue(x20,y20,0);
   X30.cargue(x30,y30,0);
@@ -208,7 +208,7 @@ int main(){
   Bodies[1].Start(X20,V0,m,R,2*R);
   Bodies[2].Start(X30,V0,m,R,-2*R);
 
-  for(t=tprint=0; t<100*T; t+=dt, tprint+=dt){
+  for(t=tprint=0; t<500*T; t+=dt, tprint+=dt){
     if(tprint > T/100){
       StartFrame();
       for(i=0;i<N;i++){Bodies[i].Draw();}
@@ -221,7 +221,7 @@ int main(){
       Newton.SetTotalTorque(Bodies);
       std::cout<<t<<'\t'<<Bodies[0].GetTz()<<std::endl;
       }*/
-    
+
     for(i=0;i<N;i++) Bodies[i].SetPosition(dt,Zi);
     Newton.SetTotalForce(Bodies);
     for(i=0;i<N;i++) Bodies[i].SetVelocity(dt,C1);
@@ -235,5 +235,5 @@ int main(){
     Newton.SetTotalForce(Bodies);
     for(i=0;i<N;i++) Bodies[i].SetVelocity(dt,C1);
     for(i=0;i<N;i++) Bodies[i].SetPosition(dt,Zi);
-  }  
+  }
 }
